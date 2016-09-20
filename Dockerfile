@@ -2,11 +2,16 @@ FROM alpine:latest
 MAINTAINER Jason Hagglund <hagglundized@gmail.com>
 
 ENV BASE_PACKAGES bash wget curl nano git
-ENV BUILD_PACKAGES build-base curl-dev libffi-dev imagemagick imagemagick-dev libxml2-dev libxslt-dev postgresql-dev
-ENV RUBY_PACKAGES ruby ruby-dev ruby-io-console ruby-bundler ruby-json yaml nodejs
+ENV BUILD_PACKAGES build-base curl-dev libffi-dev imagemagick imagemagick-dev libxml2-dev libxslt-dev postgresql-dev libstdc++ tzdata pcre-dev linux-headers
+ENV RUBY_PACKAGES ruby ruby-dev ruby-io-console ruby-bundler ruby-json nodejs yaml ruby-irb ruby-rake ruby-bigdecimal
 
 RUN apk update && apk upgrade && \
     apk add $BASE_PACKAGES && \
     apk add $BUILD_PACKAGES && \
-    apk add $RUBY_PACKAGES && \
-    rm -rf /var/cache/apk/*
+    apk add $RUBY_PACKAGES
+
+RUN rm -rf /var/cache/apk/*
+
+# Hack to allow Passenger Phusion to compile
+# https://github.com/phusion/passenger/issues/1870
+RUN echo "#undef LIBC_HAS_BACKTRACE_FUNC" > /usr/include/execinfo.h
